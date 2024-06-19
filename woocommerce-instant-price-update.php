@@ -3,7 +3,7 @@
  * Plugin Name: WooCommerce Instant Price Update
  * Description: Instantly updates the main price when a variation is selected.
  * Version: 1.0.0
- * Author: Mayank Kumar
+ * Author: Your Name
  * Text Domain: wc-instant-price-update
  */
 
@@ -18,3 +18,20 @@ function wc_instant_price_update_scripts() {
     }
 }
 add_action('wp_enqueue_scripts', 'wc_instant_price_update_scripts');
+
+// Handle the AJAX request to update the price
+function wc_instant_price_update() {
+    if (isset($_POST['variation_id']) && isset($_POST['product_id'])) {
+        $variation_id = intval($_POST['variation_id']);
+        $product_id = intval($_POST['product_id']);
+
+        $variation = new WC_Product_Variation($variation_id);
+        $price_html = $variation->get_price_html();
+
+        wp_send_json_success(array('price_html' => $price_html));
+    }
+
+    wp_send_json_error();
+}
+add_action('wp_ajax_wc_instant_price_update', 'wc_instant_price_update');
+add_action('wp_ajax_nopriv_wc_instant_price_update', 'wc_instant_price_update');
